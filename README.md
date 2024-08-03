@@ -1,3 +1,5 @@
+# Work in progress
+
 ## Electrolux Group API Client
 This is a Python client for the Electrolux Group API. It is a simple wrapper around the API, which allows you to interact with the API in a more Pythonic way.
 

@@ -1,7 +1,6 @@
 from typing import List
 
 from aiohttp import ClientSession
-from aiohttp.web_response import Response
 
 from pyelectroluxgroup.appliance import Appliance
 from pyelectroluxgroup.auth import Auth

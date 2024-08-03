@@ -1,8 +1,7 @@
 import logging
 from typing import Callable
 
-from aiohttp import ClientSession, ClientResponse, request
-from pycparser.c_ast import Struct
+from aiohttp import ClientSession, ClientResponse
 
 _LOGGER = logging.getLogger(__name__)
 

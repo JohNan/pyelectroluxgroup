@@ -2,7 +2,6 @@ import logging
 from datetime import datetime
 
 import jwt
-from aiohttp import Payload
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -31,13 +31,13 @@ class ElectroluxHubAPI:
         return self.token_manager.access_token
 
     async def async_get_appliances(self) -> List[Appliance]:
-        """Return the lights."""
+        """Return the appliances."""
         resp = await self.auth.request("get", "appliances")
         resp.raise_for_status()
         return [Appliance(appliance_data, self.auth) for appliance_data in await resp.json()]
 
     async def async_get_appliance(self, appliance_id) -> Appliance:
-        """Return the lights."""
+        """Return the appliance."""
         resp = await self.auth.request("get", f"appliances/{appliance_id}/info")
         resp.raise_for_status()
         return Appliance(await resp.json(), self.auth)

@@ -1,14 +1,6 @@
-from multiprocessing.managers import State
 from typing import Dict
 
 from pyelectroluxgroup.auth import Auth
-
-
-class PM10:
-    """PM10 of an air purifier"""
-
-    def __init__(self, data: Dict):
-        self.max = data["max"]
 
 
 class Appliance:
@@ -78,7 +70,7 @@ class Appliance:
         return self.state_data["properties"]["reported"]["Temp"]
 
     async def async_update(self):
-        """Update the light data."""
+        """Update the appliance data."""
         if not self.info_data:
             resp = await self.auth.request("get", f"appliances/{self.id}/info")
             resp.raise_for_status()

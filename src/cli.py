@@ -16,8 +16,10 @@ async def main():
                                    help='API key received from Electrolux',
                                    required=True)
     required_argument.add_argument('-t', dest='access_token',
+                                   help='Access token received from Electrolux',
                                    required=True)
     required_argument.add_argument('-r', dest='refresh_token',
+                                   help='Refresh token received from Electrolux',
                                    required=True)
 
     args = parser.parse_args()
@@ -34,14 +36,19 @@ async def main():
         appliances = await hub.async_get_appliances()
 
         for appliance in appliances:
-            print("Appliance ID", appliance.id)
-            print("Appliance name", appliance.name)
+            print(f"Appliance ID: {appliance.id}")
+            print(f"Appliance name: {appliance.name}")
 
             await appliance.async_update()
-            print(" -- Serial number", appliance.serial_number)
-            print(" -- Brand", appliance.brand)
-            print(" -- Model", appliance.model)
-            print(" -- Device Type", appliance.device_type)
+            print(f" -- Serial number: {appliance.serial_number}")
+            print(f" -- Brand: {appliance.brand}")
+            print(f" -- Model: {appliance.model}")
+            print(f" -- Device Type: {appliance.device_type}")
+            print(f" -- State --")
+            print(f" ---- PM10: {appliance.pm10}")
+            print(f" ---- PM2.5: {appliance.pm2_5}")
+            print(f" ---- PM1: {appliance.pm1}")
+            print(f" ---- Temperature: {appliance.temperature}")
 
 
 if __name__ == '__main__':

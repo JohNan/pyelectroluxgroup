@@ -1,3 +1,4 @@
+from multiprocessing.managers import State
 from typing import Dict
 
 from pyelectroluxgroup.auth import Auth
@@ -19,6 +20,7 @@ class Appliance:
         self.initial_data = initial_data
         self.info_data = {}
         self.capabilities_data = {}
+        self.state_data = {}
 
     @property
     def id(self) -> int:
@@ -56,13 +58,34 @@ class Appliance:
         return self.info_data["deviceType"]
 
     @property
-    def pm10(self) -> PM10:
-        return PM10(self.capabilities_data["pm10"])
+    def pm10(self) -> int:
+        """Return the appliance PM10"""
+        return self.state_data["properties"]["reported"]["PM10"]
+
+    @property
+    def pm2_5(self) -> int:
+        """Return the appliance PM2.5"""
+        return self.state_data["properties"]["reported"]["PM2_5"]
+
+    @property
+    def pm1(self) -> int:
+        """Return the appliance PM1"""
+        return self.state_data["properties"]["reported"]["PM1"]
+
+    @property
+    def temperature(self) -> int:
+        """Return the appliance temperature"""
+        return self.state_data["properties"]["reported"]["Temp"]
 
     async def async_update(self):
         """Update the light data."""
-        resp = await self.auth.request("get", f"appliances/{self.id}/info")
+        if not self.info_data:
+            resp = await self.auth.request("get", f"appliances/{self.id}/info")
+            resp.raise_for_status()
+            data = await resp.json()
+            self.info_data = data["applianceInfo"]
+            self.capabilities_data = data["capabilities"]
+
+        resp = await self.auth.request("get", f"appliances/{self.id}/state")
         resp.raise_for_status()
-        data = await resp.json()
-        self.info_data = data["applianceInfo"]
-        self.capabilities_data = data["capabilities"]
+        self.state_data = await resp.json()

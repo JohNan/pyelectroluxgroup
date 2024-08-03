@@ -34,7 +34,10 @@ class TokenManager:
         """Check token validity"""
         try:
             payload = jwt.decode(self.access_token, options={"verify_signature": False})
-            # datetime.fromtimestamp(payload["exp"])
+            minutes_until_expiry = (datetime.fromtimestamp(payload["exp"]) - datetime.now()).total_seconds() / 60
+            if minutes_until_expiry < 10:
+                _LOGGER.info("Access Token is about to expire in %s minutes", minutes_until_expiry)
+                return False
             return True
         except jwt.ExpiredSignatureError as e:
             _LOGGER.error("Access Token is invalid - %s", e)

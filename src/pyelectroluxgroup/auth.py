@@ -1,15 +1,21 @@
-from aiohttp import ClientSession, ClientResponse
+import logging
+from typing import Callable
+
+from aiohttp import ClientSession, ClientResponse, request
+from pycparser.c_ast import Struct
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class Auth:
     """Class to make authenticated requests."""
 
-    def __init__(self, websession: ClientSession, host: str, access_token: str, api_key: str):
+    def __init__(self, session: ClientSession, host: str, api_key: str, async_get_access_token: Callable):
         """Initialize the auth."""
-        self.websession = websession
+        self.session = session
         self.host = host
-        self.access_token = access_token
         self.api_key = api_key
+        self.async_get_access_token = async_get_access_token
 
     async def request(self, method: str, path: str, **kwargs) -> ClientResponse:
         """Make a request."""
@@ -20,9 +26,10 @@ class Auth:
         else:
             headers = dict(headers)
 
-        headers["authorization"] = f"Bearer {self.access_token}"
+        access_token = await self.async_get_access_token()
+        headers["authorization"] = f"Bearer {access_token}"
         headers["x-api-key"] = self.api_key
 
-        return await self.websession.request(
+        return await self.session.request(
             method, f"{self.host}/{path}", headers=headers,
         )

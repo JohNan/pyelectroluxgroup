@@ -50,24 +50,9 @@ class Appliance:
         return self.info_data["deviceType"]
 
     @property
-    def pm10(self) -> int:
-        """Return the appliance PM10"""
-        return self.state_data["properties"]["reported"]["PM10"]
-
-    @property
-    def pm2_5(self) -> int:
-        """Return the appliance PM2.5"""
-        return self.state_data["properties"]["reported"]["PM2_5"]
-
-    @property
-    def pm1(self) -> int:
-        """Return the appliance PM1"""
-        return self.state_data["properties"]["reported"]["PM1"]
-
-    @property
-    def temperature(self) -> int:
-        """Return the appliance temperature"""
-        return self.state_data["properties"]["reported"]["Temp"]
+    def state(self) -> dict:
+        """Return the appliance reported state"""
+        return self.state_data["properties"]["reported"]
 
     async def async_update(self):
         """Update the appliance data."""

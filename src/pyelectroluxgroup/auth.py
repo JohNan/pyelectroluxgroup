@@ -26,9 +26,10 @@ class Auth:
         else:
             headers = dict(headers)
 
-        access_token = await self.async_get_access_token()
-        headers["authorization"] = f"Bearer {access_token}"
-        headers["x-api-key"] = self.api_key
+        if not kwargs.get("skip_auth_headers", None):
+            access_token = await self.async_get_access_token()
+            headers["authorization"] = f"Bearer {access_token}"
+            headers["x-api-key"] = self.api_key
 
         return await self.session.request(
             method, f"{self.host}/{path}", headers=headers, json=json

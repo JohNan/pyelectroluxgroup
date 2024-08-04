@@ -20,7 +20,10 @@ class ElectroluxHubAPI:
             return self.token_manager.access_token
 
         response = await self.auth.request(
-            "post", "token/refresh", json={"refreshToken": self.token_manager.refresh_token}
+            "post",
+            "token/refresh",
+            json={"refreshToken": self.token_manager.refresh_token},
+            skip_auth_headers=True
         )
 
         response.raise_for_status()

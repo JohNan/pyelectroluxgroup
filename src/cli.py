@@ -45,10 +45,8 @@ async def main():
             print(f" -- Model: {appliance.model}")
             print(f" -- Device Type: {appliance.device_type}")
             print(f" -- State --")
-            print(f" ---- PM10: {appliance.pm10}")
-            print(f" ---- PM2.5: {appliance.pm2_5}")
-            print(f" ---- PM1: {appliance.pm1}")
-            print(f" ---- Temperature: {appliance.temperature}")
+            for k, v in appliance.state.items():
+                print(f" ---- {k}: {v}")
 
 
 if __name__ == '__main__':

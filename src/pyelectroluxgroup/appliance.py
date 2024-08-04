@@ -1,5 +1,7 @@
 from typing import Dict
 
+from aiohttp.client_exceptions import ClientResponseError
+
 from pyelectroluxgroup.auth import Auth
 
 
@@ -53,6 +55,16 @@ class Appliance:
     def state(self) -> dict:
         """Return the appliance reported state"""
         return self.state_data["properties"]["reported"]
+
+    async def send_command(self, command: Dict):
+        resp = await self.auth.request("put", f"appliances/{self.id}/command",
+                                      json=command)
+        try:
+            data = await resp.json()
+            resp.raise_for_status()
+        except ClientResponseError as e:
+            print(data)
+            raise e
 
     async def async_update(self):
         """Update the appliance data."""

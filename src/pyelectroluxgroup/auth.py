@@ -18,6 +18,7 @@ class Auth:
 
     async def request(self, method: str, path: str, **kwargs) -> ClientResponse:
         """Make a request."""
+        json = kwargs.get("json", None)
         headers = kwargs.get("headers")
 
         if headers is None:
@@ -30,5 +31,5 @@ class Auth:
         headers["x-api-key"] = self.api_key
 
         return await self.session.request(
-            method, f"{self.host}/{path}", headers=headers,
+            method, f"{self.host}/{path}", headers=headers, json=json
         )

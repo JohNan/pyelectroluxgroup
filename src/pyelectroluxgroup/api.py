@@ -10,19 +10,13 @@ from pyelectroluxgroup.token_manager import TokenManager
 class ElectroluxHubAPI:
     """Class to communicate with the ExampleHub API."""
 
-    def __init__(
-        self,
-        session: ClientSession,
-        access_token: str,
-        refresh_token: str,
-        api_key: str,
-    ):
+    def __init__(self, session: ClientSession, token_manager: TokenManager):
         """Initialize the API and store the auth so we can make requests."""
-        self.token_manager = TokenManager(access_token, refresh_token)
+        self.token_manager = token_manager
         self.auth = Auth(
             session,
             "https://api.developer.electrolux.one/api/v1",
-            api_key,
+            token_manager.api_key,
             self.async_get_access_token,
         )
 
@@ -39,7 +33,7 @@ class ElectroluxHubAPI:
 
         response.raise_for_status()
         data = await response.json()
-        self.token_manager.update_tokens(data["accessToken"], data["refreshToken"])
+        self.token_manager.update(data["accessToken"], data["refreshToken"])
 
         return self.token_manager.access_token
 

@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Any, Dict
 
 from aiohttp.client_exceptions import ClientResponseError
 
@@ -12,9 +12,9 @@ class Appliance:
         """Initialize the appliance."""
         self.auth = auth
         self.initial_data = initial_data
-        self.info_data = {}
-        self.capabilities_data = {}
-        self.state_data = {}
+        self.info_data: dict[str, str] = {}
+        self.capabilities_data: dict[str, Any] = {}
+        self.state_data: dict[str, Any] = {}
 
     @property
     def id(self) -> int:
@@ -57,8 +57,9 @@ class Appliance:
         return self.state_data["properties"]["reported"]
 
     async def send_command(self, command: Dict):
-        resp = await self.auth.request("put", f"appliances/{self.id}/command",
-                                      json=command)
+        resp = await self.auth.request(
+            "put", f"appliances/{self.id}/command", json=command
+        )
         try:
             data = await resp.json()
             resp.raise_for_status()
@@ -78,3 +79,7 @@ class Appliance:
         resp = await self.auth.request("get", f"appliances/{self.id}/state")
         resp.raise_for_status()
         self.state_data = await resp.json()
+
+        print(self.info_data)
+        print(self.capabilities_data)
+        print(self.state_data)

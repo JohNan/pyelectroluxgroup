@@ -1,7 +1,7 @@
 import logging
 from typing import Callable
 
-from aiohttp import ClientSession, ClientResponse
+from aiohttp import ClientResponse, ClientSession
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -9,7 +9,13 @@ _LOGGER = logging.getLogger(__name__)
 class Auth:
     """Class to make authenticated requests."""
 
-    def __init__(self, session: ClientSession, host: str, api_key: str, async_get_access_token: Callable):
+    def __init__(
+        self,
+        session: ClientSession,
+        host: str,
+        api_key: str,
+        async_get_access_token: Callable,
+    ):
         """Initialize the auth."""
         self.session = session
         self.host = host

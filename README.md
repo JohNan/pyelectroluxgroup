@@ -11,28 +11,40 @@ Use `poetry install --extras cli` to install dependencies for CLI and the librar
 usage: cli.py [-h] -k API_KEY -t ACCESS_TOKEN -r REFRESH_TOKEN {list,command} ...
 
 positional arguments:
-  {list,command}
+  {login,list,command}
 
 options:
   -h, --help        show this help message and exit
+```
 
-required arguments:
-  -k API_KEY        API key received from Electrolux
-  -t ACCESS_TOKEN   Access token received from Electrolux
-  -r REFRESH_TOKEN  Refresh token received from Electrolux
+#### Authentication
+Before being able to use the CLI, you'll need to provide access token, refresh token and API key.
+All of these can be obtained using the [developer dashboard](https://developer.electrolux.one/dashboard).
+
+To store credentials locally, use the `login` command:
+```
+poetry run python3 src/cli.py login -k $API_KEY -t $ACCESS_TOKEN -r $REFRESH_TOKEN
+```
+
+#### Listing devices
+To list all devices, use the `list` command:
+```
+poetry run python3 src/cli.py list
 ```
 
 #### Sending commands
-Commands to be sent must a proper JSON. You can use the `list` command to find keys that will be accepted by the appliance.
+Commands to be sent must be proper JSON.
+You can use the `list` command described above to find appliance IDs and commands that will be accepted by the appliance.
 
 For example, to change the fan speed for an air purifier you can use the following commands:
 ```
-poetry run python3 src/cli.py -k $API_KEY -t $ACCESS_TOKEN -r $REFRESH_TOKEN command -d $APPLIANCE_ID -c '{"Workmode": "Manual"}'
-poetry run python3 src/cli.py -k $API_KEY -t $ACCESS_TOKEN -r $REFRESH_TOKEN command -d $APPLIANCE_ID -c '{"Fanspeed": 3}'
+poetry run python3 src/cli.py command -d $APPLIANCE_ID -c '{"Workmode": "Manual"}'
+poetry run python3 src/cli.py command -d $APPLIANCE_ID -c '{"Fanspeed": 3}'
 ```
+
 and to switch it to automatic mode you can use
 ```
-poetry run python3 src/cli.py -k $API_KEY -t $ACCESS_TOKEN -r $REFRESH_TOKEN command -d $APPLIANCE_ID -c '{"Workmode": "Auto"}'
+poetry run python3 src/cli.py command -d $APPLIANCE_ID -c '{"Workmode": "Auto"}'
 ```
 
 ### Disclaimer

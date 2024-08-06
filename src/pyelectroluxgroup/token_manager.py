@@ -1,4 +1,5 @@
 import logging
+from abc import ABC, abstractmethod
 from datetime import datetime
 
 import jwt
@@ -6,13 +7,13 @@ import jwt
 _LOGGER = logging.getLogger(__name__)
 
 
-class TokenManager:
+class TokenManager(ABC):
     """Token manager class."""
 
-    def __init__(self, access_token: str, refresh_token: str):
+    @abstractmethod
+    def __init__(self, access_token: str, refresh_token: str, api_key: str):
         """Initialize the token manager."""
-        self._access_token = access_token
-        self._refresh_token = refresh_token
+        self.update(access_token, refresh_token, api_key)
 
     @property
     def access_token(self) -> str:
@@ -24,10 +25,18 @@ class TokenManager:
         """Return the refresh token."""
         return self._refresh_token
 
-    def update_tokens(self, access_token: str, refresh_token: str):
+    @property
+    def api_key(self) -> str:
+        """Return the api key."""
+        return self._api_key
+
+    @abstractmethod
+    def update(self, access_token: str, refresh_token: str, api_key: str | None = None):
         """Update the tokens."""
         self._access_token = access_token
         self._refresh_token = refresh_token
+        if api_key is not None:
+            self._api_key = api_key
 
     def is_token_valid(self) -> bool:
         """Check token validity"""

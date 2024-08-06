@@ -12,6 +12,10 @@ packages = [
 python = "^3.11"
 aiohttp = "^3.10.0"
 pyjwt = "^2.8.0"
+certifi = { version = "2024.7.4", optional = true }
+
+[tool.poetry.extras]
+cli = ["certifi"]
 
 [build-system]
 requires = ["poetry-core"]

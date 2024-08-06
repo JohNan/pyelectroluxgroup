@@ -7,12 +7,15 @@ import aiohttp
 import certifi
 
 from pyelectroluxgroup.api import ElectroluxHubAPI
+from pyelectroluxgroup.token_managers.filesystem import TokenManagerFileSystem
 
 
 async def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="cmd", required=True)
-    required_argument = parser.add_argument_group("required arguments")
+
+    login_parser = subparsers.add_parser("login")
+    required_argument = login_parser.add_argument_group("required arguments")
     required_argument.add_argument(
         "-k", dest="api_key", help="API key received from Electrolux", required=True
     )
@@ -30,8 +33,8 @@ async def main():
     )
 
     _list_parser = subparsers.add_parser("list")
-    command_parser = subparsers.add_parser("command")
 
+    command_parser = subparsers.add_parser("command")
     command_parser.add_argument(
         "-d", dest="appliance_id", help="ID of the target device", required=True
     )
@@ -47,12 +50,20 @@ async def main():
     ssl_context = ssl.create_default_context(cafile=certifi.where())
     conn = aiohttp.TCPConnector(ssl=ssl_context)
 
-    api_key = args.api_key
-    access_token = args.access_token
-    refresh_token = args.refresh_token
+    token_manager = TokenManagerFileSystem()
+
+    if args.cmd == "login":
+        token_manager.update(args.access_token, args.refresh_token, args.api_key)
+        return
+
+    try:
+        token_manager.load()
+    except FileNotFoundError:
+        print("You have to run the 'login' command first")
+        return
 
     async with aiohttp.ClientSession(connector=conn) as session:
-        hub = ElectroluxHubAPI(session, access_token, refresh_token, api_key)
+        hub = ElectroluxHubAPI(session, token_manager)
         appliances = await hub.async_get_appliances()
 
         if args.cmd == "list":

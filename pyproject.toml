@@ -1,9 +1,10 @@
 [tool.poetry]
 name = "pyelectroluxgroup"
 version = "0.1.0"
-description = ""
+description = "This is a Python client for the Electrolux Group API. It is a simple wrapper around the API."
 authors = ["Johan Nenzén <johan.nanzen@gmail.com>"]
 readme = "README.md"
+repository = "https://github.com/JohNan/pyelectroluxgroup"
 packages = [
     { include = "pyelectroluxgroup", from = "src" },
 ]

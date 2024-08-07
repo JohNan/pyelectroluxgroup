@@ -59,8 +59,8 @@ class TokenManager(ABC):
         try:
             payload = jwt.decode(self.access_token, options={"verify_signature": False})
             minutes_until_expiry = (
-                                           datetime.fromtimestamp(payload["exp"]) - datetime.now()
-                                   ).total_seconds() / 60
+                datetime.fromtimestamp(payload["exp"]) - datetime.now()
+            ).total_seconds() / 60
             if minutes_until_expiry < 10:
                 _LOGGER.info(
                     "Access Token is about to expire in %s minutes",

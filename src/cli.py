@@ -12,6 +12,7 @@ from pyelectroluxgroup.token_managers.filesystem import TokenManagerFileSystem
 
 logging.basicConfig(level=logging.DEBUG)
 
+
 async def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="cmd", required=True)

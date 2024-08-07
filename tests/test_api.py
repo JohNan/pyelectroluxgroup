@@ -31,7 +31,7 @@ async def test_async_get_access_token():
     token_manager = MockTokenManager(
         access_token="expired_access_token",
         refresh_token="mock_refresh_token",
-        api_key="mock_api_key"
+        api_key="mock_api_key",
     )
 
     token_manager.expire_token()
@@ -43,7 +43,13 @@ async def test_async_get_access_token():
         with aioresponses() as mocked:
             # Mock the response for the token refresh
             refresh_url = "https://api.developer.electrolux.one/api/v1/token/refresh"
-            mocked.post(refresh_url, payload={"accessToken": "new_access_token", "refreshToken": "new_refresh_token"})
+            mocked.post(
+                refresh_url,
+                payload={
+                    "accessToken": "new_access_token",
+                    "refreshToken": "new_refresh_token",
+                },
+            )
 
             # Call the method
             access_token = await hub_api.async_get_access_token()
@@ -60,7 +66,7 @@ async def test_async_get_appliances():
     token_manager = MockTokenManager(
         api_key="mock_api_key",
         access_token="valid_access_token",
-        refresh_token="mock_refresh_token"
+        refresh_token="mock_refresh_token",
     )
 
     async with ClientSession() as session:
@@ -70,14 +76,17 @@ async def test_async_get_appliances():
         with aioresponses() as mocked:
             # Mock the response for the appliances endpoint
             appliances_url = "https://api.developer.electrolux.one/api/v1/appliances"
-            mocked.get(appliances_url, payload=[
-                {
-                    "applianceId": "999011524",
-                    "applianceName": "My Air Conditioner",
-                    "applianceType": "AC",
-                    "created": "2022-07-20T08:19:06.521Z"
-                }
-            ])
+            mocked.get(
+                appliances_url,
+                payload=[
+                    {
+                        "applianceId": "999011524",
+                        "applianceName": "My Air Conditioner",
+                        "applianceType": "AC",
+                        "created": "2022-07-20T08:19:06.521Z",
+                    }
+                ],
+            )
 
             # Call the method
             appliances = await hub_api.async_get_appliances()
@@ -96,7 +105,7 @@ async def test_async_get_appliance():
     token_manager = MockTokenManager(
         api_key="mock_api_key",
         access_token="valid_access_token",
-        refresh_token="mock_refresh_token"
+        refresh_token="mock_refresh_token",
     )
 
     async with ClientSession() as session:
@@ -107,12 +116,15 @@ async def test_async_get_appliance():
             # Mock the response for the specific appliance endpoint
             appliance_id = "999011524_00:94700001-443E070ABC12"
             appliance_url = f"https://api.developer.electrolux.one/api/v1/appliances/{appliance_id}/info"
-            mocked.get(appliance_url, payload={
-                "applianceId": appliance_id,
-                "applianceName": "My Air Conditioner",
-                "applianceType": "AC",
-                "created": "2022-07-20T08:19:06.521Z"
-            })
+            mocked.get(
+                appliance_url,
+                payload={
+                    "applianceId": appliance_id,
+                    "applianceName": "My Air Conditioner",
+                    "applianceType": "AC",
+                    "created": "2022-07-20T08:19:06.521Z",
+                },
+            )
 
             # Call the method
             appliance = await hub_api.async_get_appliance(appliance_id)

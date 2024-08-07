@@ -7,6 +7,7 @@ from pyelectroluxgroup.auth import Auth
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class Appliance:
     """Class representing an appliance."""
 

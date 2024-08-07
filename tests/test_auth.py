@@ -1,8 +1,8 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from aioresponses import aioresponses
+import pytest
 from aiohttp import ClientSession
+from aioresponses import aioresponses
 from yarl import URL
 
 from pyelectroluxgroup.auth import Auth
@@ -19,7 +19,7 @@ async def test_auth_request_with_auth_headers():
             session=session,
             host="https://api.developer.electrolux.one/api/v1",
             api_key="mock_api_key",
-            async_get_access_token=mock_get_access_token
+            async_get_access_token=mock_get_access_token,
         )
 
         with aioresponses() as mocked:
@@ -56,17 +56,18 @@ async def test_auth_request_without_auth_headers():
             session=session,
             host="https://api.developer.electrolux.one/api/v1",
             api_key="mock_api_key",
-            async_get_access_token=mock_get_access_token
+            async_get_access_token=mock_get_access_token,
         )
 
         with aioresponses() as mocked:
             # Mock the API response
             url = "https://api.developer.electrolux.one/api/v1/test-endpoint"
-            mocked.get(url, status=200,
-                       payload={"key": "value"})
+            mocked.get(url, status=200, payload={"key": "value"})
 
             # Make a request without auth headers
-            response = await auth.request("get", "test-endpoint", skip_auth_headers=True)
+            response = await auth.request(
+                "get", "test-endpoint", skip_auth_headers=True
+            )
 
             # Assertions
             assert response.status == 200
@@ -94,18 +95,19 @@ async def test_auth_request_with_custom_headers():
             session=session,
             host="https://api.developer.electrolux.one/api/v1",
             api_key="mock_api_key",
-            async_get_access_token=mock_get_access_token
+            async_get_access_token=mock_get_access_token,
         )
 
         with aioresponses() as mocked:
             # Mock the API response
             url = "https://api.developer.electrolux.one/api/v1/test-endpoint"
-            mocked.get(url, status=200,
-                       payload={"key": "value"})
+            mocked.get(url, status=200, payload={"key": "value"})
 
             # Make a request with custom headers
             custom_headers = {"custom-header": "custom_value"}
-            response = await auth.request("get", "test-endpoint", headers=custom_headers)
+            response = await auth.request(
+                "get", "test-endpoint", headers=custom_headers
+            )
 
             # Assertions
             assert response.status == 200

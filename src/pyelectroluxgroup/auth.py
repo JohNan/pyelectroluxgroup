@@ -10,11 +10,11 @@ class Auth:
     """Class to make authenticated requests."""
 
     def __init__(
-            self,
-            session: ClientSession,
-            host: str,
-            api_key: str | None,
-            async_get_access_token: Callable,
+        self,
+        session: ClientSession,
+        host: str,
+        api_key: str | None,
+        async_get_access_token: Callable,
     ):
         """Initialize the auth."""
         self.session = session

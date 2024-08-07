@@ -30,6 +30,7 @@ jobs:
       - name: Test with tox
         run: poetry run tox
       - name: Publish coverage report
+        continue-on-error: true
         uses: orgoro/coverage@v3.2
         with:
           coverageFile: coverage.xml

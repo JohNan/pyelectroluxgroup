@@ -10,11 +10,11 @@ class Auth:
     """Class to make authenticated requests."""
 
     def __init__(
-        self,
-        session: ClientSession,
-        host: str,
-        api_key: str,
-        async_get_access_token: Callable,
+            self,
+            session: ClientSession,
+            host: str,
+            api_key: str | None,
+            async_get_access_token: Callable,
     ):
         """Initialize the auth."""
         self.session = session
@@ -33,9 +33,14 @@ class Auth:
             headers = dict(headers)
 
         if not kwargs.get("skip_auth_headers", None):
-            access_token = await self.async_get_access_token()
-            headers["authorization"] = f"Bearer {access_token}"
             headers["x-api-key"] = self.api_key
+
+            try:
+                access_token = await self.async_get_access_token()
+                headers["authorization"] = f"Bearer {access_token}"
+            except Exception as e:
+                _LOGGER.error(f"Failed to get access token: {e}")
+                raise e
 
         return await self.session.request(
             method, f"{self.host}/{path}", headers=headers, json=json

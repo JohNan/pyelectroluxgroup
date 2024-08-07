@@ -1,9 +1,11 @@
+import logging
 from typing import Any, Dict
 
 from aiohttp.client_exceptions import ClientResponseError
 
 from pyelectroluxgroup.auth import Auth
 
+_LOGGER = logging.getLogger(__name__)
 
 class Appliance:
     """Class representing an appliance."""
@@ -25,6 +27,11 @@ class Appliance:
     def name(self) -> str:
         """Return the appliance name."""
         return self.initial_data["applianceName"]
+
+    @property
+    def type(self) -> str:
+        """Return the appliance name."""
+        return self.initial_data["applianceType"]
 
     @property
     def serial_number(self) -> str:
@@ -57,14 +64,16 @@ class Appliance:
         return self.state_data["properties"]["reported"]
 
     async def send_command(self, command: Dict):
+        _LOGGER.info(f"Command '{command}' sent to appliance {self.id}")
         resp = await self.auth.request(
             "put", f"appliances/{self.id}/command", json=command
         )
         try:
             data = await resp.json()
+            _LOGGER.info(f"Response from appliance {self.id}: {data}")
             resp.raise_for_status()
         except ClientResponseError as e:
-            print(data)
+            _LOGGER.error(f"Error sending command '{command}' to appliance {self.id}")
             raise e
 
     async def async_update(self):
@@ -79,7 +88,6 @@ class Appliance:
         resp = await self.auth.request("get", f"appliances/{self.id}/state")
         resp.raise_for_status()
         self.state_data = await resp.json()
-
-        print(self.info_data)
-        print(self.capabilities_data)
-        print(self.state_data)
+        _LOGGER.debug(f"Appliance info {self.info_data}")
+        _LOGGER.debug(f"Appliance state {self.state_data}")
+        _LOGGER.debug(f"Appliance capabilities {self.capabilities_data}")

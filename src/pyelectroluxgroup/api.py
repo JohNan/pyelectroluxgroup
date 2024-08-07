@@ -13,6 +13,9 @@ class ElectroluxHubAPI:
     def __init__(self, session: ClientSession, token_manager: TokenManager):
         """Initialize the API and store the auth so we can make requests."""
         self.token_manager = token_manager
+        if not self.token_manager.ensure_credentials():
+            raise ValueError("Token manager is missing credentials")
+
         self.auth = Auth(
             session,
             "https://api.developer.electrolux.one/api/v1",

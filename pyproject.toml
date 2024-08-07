@@ -10,10 +10,23 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.11"
-aiohttp = "^3.10.0"
+python = "^3.10"
+aiohttp = "^3.9.5"
 pyjwt = "^2.8.0"
-certifi = { version = "2024.7.4", optional = true }
+
+[tool.poetry.group.dev.dependencies]
+certifi = "2024.7.4"
+pytest = "^7.4"
+pytest-sugar = "*"
+pytest-cov = "*"
+pytest-asyncio = "^0.23.8"
+aioresponses = "^0.7.2"
+black = "*"
+mypy = "*"
+ruff = "*"
+isort = "*"
+tox = "*"
+tox-gh-actions = "^3.2.0"
 
 [tool.poetry.extras]
 cli = ["certifi"]

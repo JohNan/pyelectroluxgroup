@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 import json
+import logging
 import ssl
 
 import aiohttp
@@ -9,6 +10,7 @@ import certifi
 from pyelectroluxgroup.api import ElectroluxHubAPI
 from pyelectroluxgroup.token_managers.filesystem import TokenManagerFileSystem
 
+logging.basicConfig(level=logging.DEBUG)
 
 async def main():
     parser = argparse.ArgumentParser()
@@ -70,6 +72,7 @@ async def main():
             for appliance in appliances:
                 print(f"Appliance ID: {appliance.id}")
                 print(f"Appliance name: {appliance.name}")
+                print(f"Appliance type: {appliance.type}")
 
                 await appliance.async_update()
                 print(f" -- Serial number: {appliance.serial_number}")

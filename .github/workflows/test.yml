@@ -25,6 +25,8 @@ jobs:
         uses: snok/install-poetry@v1
         with:
           virtualenvs-create: false
+      - name: Install dependencies
+        run: poetry install --sync --no-interaction
       - name: Test with tox
         run: poetry run tox
       - name: Publish coverage report

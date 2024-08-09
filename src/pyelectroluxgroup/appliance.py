@@ -60,9 +60,24 @@ class Appliance:
         return self.info_data["deviceType"]
 
     @property
+    def status(self) -> str:
+        """Return the appliance status"""
+        return self.state_data["status"]
+
+    @property
+    def connection_state(self) -> str:
+        """Return the appliance connection_state"""
+        return self.state_data["connectionState"]
+
+    @property
     def state(self) -> dict:
         """Return the appliance reported state"""
         return self.state_data["properties"]["reported"]
+
+    @property
+    def capabilities(self) -> dict:
+        """Return the appliance capabilities"""
+        return self.capabilities_data
 
     async def send_command(self, command: Dict):
         _LOGGER.info(f"Command '{command}' sent to appliance {self.id}")

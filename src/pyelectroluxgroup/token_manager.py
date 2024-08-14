@@ -63,7 +63,7 @@ class TokenManager(ABC):
             ).total_seconds() / 60
             if minutes_until_expiry < 10:
                 _LOGGER.info(
-                    "Access Token is about to expire in %s minutes",
+                    "Access Token is about to expire in %s minutes, refreshing it",
                     minutes_until_expiry,
                 )
                 return False

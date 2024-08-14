@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 from aiohttp import ClientSession
@@ -5,6 +6,8 @@ from aiohttp import ClientSession
 from pyelectroluxgroup.appliance import Appliance
 from pyelectroluxgroup.auth import Auth
 from pyelectroluxgroup.token_manager import TokenManager
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class ElectroluxHubAPI:
@@ -28,20 +31,16 @@ class ElectroluxHubAPI:
             return self.token_manager.access_token
 
         try:
+            _LOGGER.debug("Refreshing access token")
             response = await self.auth.request(
                 "post",
                 "token/refresh",
                 json={"refreshToken": self.token_manager.refresh_token},
                 skip_auth_headers=True,
             )
+
             response.raise_for_status()
         except Exception as e:
-            await self.auth.request(
-                "post",
-                "token/revoke",
-                json={"refreshToken": self.token_manager.refresh_token},
-                skip_auth_headers=True,
-            )
             raise ValueError(f"Failed to get access token: {e}")
 
         data = await response.json()

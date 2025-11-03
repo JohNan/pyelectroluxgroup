@@ -81,7 +81,7 @@ class Appliance:
         return self.capabilities_data
 
     async def send_command(self, command: Dict):
-        _LOGGER.info(f"Command '{command}' sent to appliance {self.id}")
+        _LOGGER.info(f"Command '{command}' sent to appliance {self.id} (ELECTROLUXONE_API_CALL)")
         resp = await self.auth.request(
             "put", f"appliances/{self.id}/command", json=command
         )
@@ -97,12 +97,14 @@ class Appliance:
         """Update the appliance data."""
         if not self.info_data:
             resp = await self.auth.request("get", f"appliances/{self.id}/info")
+            _LOGGER.debug(f"Updated appliance info for {self.id} (ELECTROLUXONE_API_CALL)")
             resp.raise_for_status()
             data = await resp.json()
             self.info_data = data["applianceInfo"]
             self.capabilities_data = data["capabilities"]
 
         resp = await self.auth.request("get", f"appliances/{self.id}/state")
+        _LOGGER.debug(f"Updated appliance state for {self.id} (ELECTROLUXONE_API_CALL)")
         resp.raise_for_status()
         self.state_data = await resp.json()
         _LOGGER.debug(f"Appliance info {self.info_data}")
@@ -112,11 +114,13 @@ class Appliance:
     async def async_get_interactive_maps(self) -> List[InteractiveMap]:
         """Return the interactive maps for the Pure i8 and Pure i9 RVC appliances."""
         resp = await self.auth.request("get", f"appliances/{self.id}/interactiveMap")
+        _LOGGER.debug(f"Fetched appliance interactive maps for {self.id} (ELECTROLUXONE_API_CALL)")
         resp.raise_for_status()
         return [InteractiveMap(map_data) for map_data in await resp.json()]
 
     async def async_get_memory_maps(self) -> List[MemoryMap]:
         """Return the memory maps for the 700 series RVC appliances."""
         resp = await self.auth.request("get", f"appliances/{self.id}/memoryMap")
+        _LOGGER.debug(f"Fetched appliance memory maps for {self.id} (ELECTROLUXONE_API_CALL)")
         resp.raise_for_status()
         return [MemoryMap(map_data) for map_data in await resp.json()]

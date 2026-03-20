@@ -1,6 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 
 import jwt
 
@@ -59,7 +59,8 @@ class TokenManager(ABC):
         try:
             payload = jwt.decode(self.access_token, options={"verify_signature": False})
             minutes_until_expiry = (
-                datetime.fromtimestamp(payload["exp"]) - datetime.now()
+                datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
+                - datetime.now(timezone.utc)
             ).total_seconds() / 60
             if minutes_until_expiry < 10:
                 _LOGGER.info(

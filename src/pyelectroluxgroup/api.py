@@ -1,7 +1,9 @@
+import json
 import logging
-from typing import List
+from typing import Any, AsyncGenerator, List
 
 from aiohttp import ClientSession
+from aiohttp_sse_client.client import EventSource
 
 from pyelectroluxgroup.appliance import Appliance
 from pyelectroluxgroup.auth import Auth
@@ -61,3 +63,33 @@ class ElectroluxHubAPI:
         resp = await self.auth.request("get", f"appliances/{appliance_id}/info")
         resp.raise_for_status()
         return Appliance(await resp.json(), self.auth)
+
+    async def watch_appliances(self) -> AsyncGenerator[dict[str, Any], None]:
+        """Listen to the live stream for changes.
+        Note: The caller is responsible for handling reconnections and token
+        refresh if the stream drops."""
+        resp = await self.auth.request("get", "configurations/livestream")
+        resp.raise_for_status()
+        stream_data = await resp.json()
+        stream_url = stream_data["url"]
+
+        headers = await self.auth.get_headers()
+        async with EventSource(
+            stream_url, session=self.auth.session, headers=headers
+        ) as event_source:
+            try:
+                async for event in event_source:
+                    if not event.data:
+                        continue
+
+                    try:
+                        data = json.loads(event.data)
+                    except json.JSONDecodeError:
+                        _LOGGER.warning(f"Failed to decode stream event: {event.data}")
+                        continue
+
+                    if "applianceId" in data and "property" in data and "value" in data:
+                        yield data
+            except Exception as e:
+                _LOGGER.error(f"Live stream error: {e}")
+                raise e

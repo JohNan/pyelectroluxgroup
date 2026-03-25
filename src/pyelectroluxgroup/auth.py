@@ -22,6 +22,21 @@ class Auth:
         self.api_key = api_key
         self.async_get_access_token = async_get_access_token
 
+    async def get_headers(self) -> dict[str, str]:
+        """Get the authentication headers."""
+        headers = {}
+        if self.api_key:
+            headers["x-api-key"] = self.api_key
+
+        try:
+            access_token = await self.async_get_access_token()
+            headers["authorization"] = f"Bearer {access_token}"
+        except Exception as e:
+            _LOGGER.error(f"Failed to get access token: {e}")
+            raise e
+
+        return headers
+
     async def request(self, method: str, path: str, **kwargs) -> ClientResponse:
         """Make a request."""
         json = kwargs.get("json", None)
@@ -33,14 +48,8 @@ class Auth:
             headers = dict(headers)
 
         if not kwargs.get("skip_auth_headers", None):
-            headers["x-api-key"] = self.api_key
-
-            try:
-                access_token = await self.async_get_access_token()
-                headers["authorization"] = f"Bearer {access_token}"
-            except Exception as e:
-                _LOGGER.error(f"Failed to get access token: {e}")
-                raise e
+            auth_headers = await self.get_headers()
+            headers.update(auth_headers)
 
         return await self.session.request(
             method, f"{self.host}/{path}", headers=headers, json=json

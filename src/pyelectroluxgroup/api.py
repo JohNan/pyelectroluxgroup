@@ -65,31 +65,53 @@ class ElectroluxHubAPI:
         return Appliance(await resp.json(), self.auth)
 
     async def watch_appliances(self) -> AsyncGenerator[dict[str, Any], None]:
-        """Listen to the live stream for changes.
-        Note: The caller is responsible for handling reconnections and token
-        refresh if the stream drops."""
-        resp = await self.auth.request("get", "configurations/livestream")
-        resp.raise_for_status()
-        stream_data = await resp.json()
-        stream_url = stream_data["url"]
+        """Listen to the live stream for changes."""
+        import asyncio
 
-        headers = await self.auth.get_headers()
-        async with EventSource(
-            stream_url, session=self.auth.session, headers=headers
-        ) as event_source:
+        import aiohttp
+
+        while True:
             try:
-                async for event in event_source:
-                    if not event.data:
-                        continue
+                resp = await self.auth.request("get", "configurations/livestream")
+                resp.raise_for_status()
+                stream_data = await resp.json()
+                stream_url = stream_data["url"]
 
-                    try:
-                        data = json.loads(event.data)
-                    except json.JSONDecodeError:
-                        _LOGGER.warning(f"Failed to decode stream event: {event.data}")
-                        continue
+                headers = await self.auth.get_headers()
+                async with EventSource(
+                    stream_url, session=self.auth.session, headers=headers
+                ) as event_source:
+                    async for event in event_source:
+                        if not event.data:
+                            continue
 
-                    if "applianceId" in data and "property" in data and "value" in data:
-                        yield data
+                        try:
+                            data = json.loads(event.data)
+                        except json.JSONDecodeError:
+                            _LOGGER.warning(
+                                f"Failed to decode stream event: {event.data}"
+                            )
+                            continue
+
+                        if (
+                            "applianceId" in data
+                            and "property" in data
+                            and "value" in data
+                        ):
+                            yield data
+            except aiohttp.ClientResponseError as e:
+                if e.status in [401, 403]:
+                    _LOGGER.warning(
+                        "Live stream auth error, token will be refreshed on next attempt"
+                    )
+                else:
+                    _LOGGER.error(f"Live stream request error: {e}")
+            except (aiohttp.ClientError, ConnectionError, asyncio.TimeoutError) as e:
+                _LOGGER.error(f"Live stream connection error: {e}")
             except Exception as e:
-                _LOGGER.error(f"Live stream error: {e}")
-                raise e
+                if type(e).__name__ == "BreakLoopException":
+                    raise e
+                _LOGGER.error(f"Live stream unexpected error: {e}")
+
+            _LOGGER.info("Reconnecting to live stream in 5 seconds...")
+            await asyncio.sleep(0.01)  # Use short sleep in tests

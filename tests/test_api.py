@@ -170,15 +170,26 @@ async def test_watch_appliances(monkeypatch):
             except StopIteration:
                 raise StopAsyncIteration
 
-    mock_event_source_instance.__aiter__.return_value = MockAsyncIterator(
-        [mock_event1, mock_event2]
-    )
+    # Using simple async generator to mock the iterator
+    class BreakLoopException(Exception):
+        pass
 
-    mock_event_source_context = MagicMock()
-    mock_event_source_context.__aenter__.return_value = mock_event_source_instance
-    mock_event_source_context.__aexit__.return_value = None
+    class MockEventSource:
+        async def __aiter__(self):
+            yield mock_event1
+            yield mock_event2
+            raise BreakLoopException()
 
-    mock_event_source = MagicMock(return_value=mock_event_source_context)
+    mock_event_source_instance = MockEventSource()
+
+    class AsyncContextManagerMock:
+        async def __aenter__(self):
+            return mock_event_source_instance
+
+        async def __aexit__(self, exc_type, exc, tb):
+            pass
+
+    mock_event_source = MagicMock(return_value=AsyncContextManagerMock())
 
     monkeypatch.setattr("pyelectroluxgroup.api.EventSource", mock_event_source)
 
@@ -196,8 +207,11 @@ async def test_watch_appliances(monkeypatch):
 
             # Call the method and collect the results
             events = []
-            async for event in hub_api.watch_appliances():
-                events.append(event)
+            try:
+                async for event in hub_api.watch_appliances():
+                    events.append(event)
+            except BreakLoopException:
+                pass
 
             assert len(events) == 2
             assert events[0] == {

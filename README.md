@@ -6,6 +6,9 @@ This is a Python client for the Electrolux Group API. It is a simple wrapper aro
 ### Installation
 Use `poetry install --extras cli` to install dependencies for CLI and the library itself.
 
+### Documentation
+See the [API Usage Guide](docs/api_usage.md) for information on how to interact with the API, fetch appliances, and consume the Server-Sent Events (SSE) live stream.
+
 ### Usage
 ```bash
 usage: cli.py [-h] -k API_KEY -t ACCESS_TOKEN -r REFRESH_TOKEN {list,command} ...

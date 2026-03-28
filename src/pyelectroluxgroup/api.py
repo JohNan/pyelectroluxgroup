@@ -114,4 +114,4 @@ class ElectroluxHubAPI:
                 _LOGGER.error(f"Live stream unexpected error: {e}")
 
             _LOGGER.info("Reconnecting to live stream in 5 seconds...")
-            await asyncio.sleep(0.01)  # Use short sleep in tests
+            await asyncio.sleep(5)

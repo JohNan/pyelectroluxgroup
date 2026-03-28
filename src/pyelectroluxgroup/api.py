@@ -105,13 +105,13 @@ class ElectroluxHubAPI:
                         "Live stream auth error, token will be refreshed on next attempt"
                     )
                 else:
-                    _LOGGER.error(f"Live stream request error: {e}")
+                    _LOGGER.debug(f"Live stream request error: {e}")
             except (aiohttp.ClientError, ConnectionError, asyncio.TimeoutError) as e:
-                _LOGGER.error(f"Live stream connection error: {e}")
+                _LOGGER.debug(f"Live stream connection error: {e}")
             except Exception as e:
                 if type(e).__name__ == "BreakLoopException":
                     raise e
                 _LOGGER.error(f"Live stream unexpected error: {e}")
 
-            _LOGGER.info("Reconnecting to live stream in 5 seconds...")
+            _LOGGER.debug("Reconnecting to live stream in 5 seconds...")
             await asyncio.sleep(5)

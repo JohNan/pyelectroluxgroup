@@ -17,10 +17,13 @@ class Auth:
         async_get_access_token: Callable,
     ):
         """Initialize the auth."""
+        import asyncio
+
         self.session = session
         self.host = host
         self.api_key = api_key
         self.async_get_access_token = async_get_access_token
+        self._request_semaphore: asyncio.Semaphore | None = None
 
     async def get_headers(self) -> dict[str, str]:
         """Get the authentication headers."""
@@ -39,6 +42,11 @@ class Auth:
 
     async def request(self, method: str, path: str, **kwargs) -> ClientResponse:
         """Make a request."""
+        import asyncio
+
+        if self._request_semaphore is None:
+            self._request_semaphore = asyncio.Semaphore(5)
+
         json = kwargs.get("json", None)
         headers = kwargs.get("headers")
 
@@ -51,6 +59,15 @@ class Auth:
             auth_headers = await self.get_headers()
             headers.update(auth_headers)
 
-        return await self.session.request(
-            method, f"{self.host}/{path}", headers=headers, json=json
-        )
+        async with self._request_semaphore:
+            for attempt in range(4):
+                response = await self.session.request(
+                    method, f"{self.host}/{path}", headers=headers, json=json
+                )
+                if response.status == 429 and attempt < 3:
+                    _LOGGER.debug(
+                        f"Request rate limited (429), retrying in {2 ** attempt} seconds..."
+                    )
+                    await asyncio.sleep(2**attempt)
+                    continue
+                return response

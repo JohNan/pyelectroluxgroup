@@ -116,6 +116,10 @@ class ElectroluxHubAPI:
                     _LOGGER.warning(
                         "Live stream auth error, token will be refreshed on next attempt"
                     )
+                elif e.status == 429:
+                    _LOGGER.debug(
+                        "Live stream rate limited (429 Too Many Requests), waiting before reconnect"
+                    )
                 else:
                     _LOGGER.debug(f"Live stream request error: {e}")
             except (aiohttp.ClientError, ConnectionError, asyncio.TimeoutError) as e:

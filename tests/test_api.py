@@ -224,3 +224,49 @@ async def test_watch_appliances(monkeypatch):
                 "property": "Workmode",
                 "value": "Auto",
             }
+
+
+@pytest.mark.asyncio
+async def test_async_get_livestream_configurations():
+    # Mock the token manager
+    token_manager = MockTokenManager(
+        api_key="mock_api_key",
+        access_token="valid_access_token",
+        refresh_token="mock_refresh_token",
+    )
+
+    async with ClientSession() as session:
+        # Create an instance of ElectroluxHubAPI
+        hub_api = ElectroluxHubAPI(session, token_manager)
+
+        with aioresponses() as mocked:
+            # Mock the response for the livestream configurations endpoint
+            livestream_url = (
+                "https://api.developer.electrolux.one/api/v1/configurations/livestream"
+            )
+            mocked.get(
+                livestream_url,
+                payload={
+                    "url": "https://livestream.developer.electrolux.one/stream",
+                    "appliances": [
+                        {
+                            "applianceId": "999011524_00:94700001-443E070ABC12",
+                            "properties": ["Fanspeed", "Workmode"],
+                        }
+                    ],
+                },
+            )
+
+            # Call the method
+            configs = await hub_api.async_get_livestream_configurations()
+
+            # Assertions
+            assert (
+                configs["url"] == "https://livestream.developer.electrolux.one/stream"
+            )
+            assert len(configs["appliances"]) == 1
+            assert (
+                configs["appliances"][0]["applianceId"]
+                == "999011524_00:94700001-443E070ABC12"
+            )
+            assert configs["appliances"][0]["properties"] == ["Fanspeed", "Workmode"]

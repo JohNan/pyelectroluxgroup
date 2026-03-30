@@ -78,8 +78,13 @@ class ElectroluxHubAPI:
                 stream_url = stream_data["url"]
 
                 headers = await self.auth.get_headers()
+                timeout = aiohttp.ClientTimeout(total=None, sock_read=120)
+
                 async with EventSource(
-                    stream_url, session=self.auth.session, headers=headers
+                    stream_url,
+                    session=self.auth.session,
+                    headers=headers,
+                    timeout=timeout,
                 ) as event_source:
                     async for event in event_source:
                         if not event.data:
@@ -99,6 +104,9 @@ class ElectroluxHubAPI:
                             and "value" in data
                         ):
                             yield data
+            except asyncio.CancelledError:
+                _LOGGER.debug("Live stream task cancelled, exiting loop.")
+                raise
             except aiohttp.ClientResponseError as e:
                 if e.status in [401, 403]:
                     _LOGGER.warning(
@@ -113,5 +121,5 @@ class ElectroluxHubAPI:
                     raise e
                 _LOGGER.error(f"Live stream unexpected error: {e}")
 
-            _LOGGER.debug("Reconnecting to live stream in 5 seconds...")
-            await asyncio.sleep(5)
+            _LOGGER.debug("Reconnecting to live stream in 10 seconds...")
+            await asyncio.sleep(10)

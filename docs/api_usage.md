@@ -55,6 +55,15 @@ await appliance.send_command(command)
 
 The Live Stream API is the recommended way to get real-time state changes from your appliances. Instead of polling, you establish a long-lived connection that yields changes as they happen.
 
+You can also fetch the livestream configurations to see what properties are supported and will be livestreamed for each appliance:
+
+```python
+livestream_configs = await api.async_get_livestream_configurations()
+print(f"Livestream URL: {livestream_configs['url']}")
+for appliance in livestream_configs['appliances']:
+    print(f"Appliance {appliance['applianceId']} supports properties: {appliance['properties']}")
+```
+
 The `watch_appliances` method handles the underlying Server-Sent Events (SSE) connection automatically. It also includes built-in retry logic: if the connection drops or the token expires, it will sleep briefly, refresh the token if needed, and attempt to reconnect.
 
 ### Using the Live Stream

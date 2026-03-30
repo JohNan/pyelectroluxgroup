@@ -64,6 +64,12 @@ class ElectroluxHubAPI:
         resp.raise_for_status()
         return Appliance(await resp.json(), self.auth)
 
+    async def async_get_livestream_configurations(self) -> dict[str, Any]:
+        """Return the livestream configurations."""
+        resp = await self.auth.request("get", "configurations/livestream")
+        resp.raise_for_status()
+        return await resp.json()
+
     async def watch_appliances(self) -> AsyncGenerator[dict[str, Any], None]:
         """Listen to the live stream for changes."""
         import asyncio
@@ -72,9 +78,7 @@ class ElectroluxHubAPI:
 
         while True:
             try:
-                resp = await self.auth.request("get", "configurations/livestream")
-                resp.raise_for_status()
-                stream_data = await resp.json()
+                stream_data = await self.async_get_livestream_configurations()
                 stream_url = stream_data["url"]
 
                 headers = await self.auth.get_headers()

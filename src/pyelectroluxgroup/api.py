@@ -33,7 +33,7 @@ class ElectroluxHubAPI:
             return self.token_manager.access_token
 
         try:
-            _LOGGER.debug("Refreshing access token")
+            _LOGGER.debug("Refreshing access token (ELECTROLUXONE_API_CALL)")
             response = await self.auth.request(
                 "post",
                 "token/refresh",
@@ -53,6 +53,7 @@ class ElectroluxHubAPI:
     async def async_get_appliances(self) -> List[Appliance]:
         """Return the appliances."""
         resp = await self.auth.request("get", "appliances")
+        _LOGGER.debug("Fetched list of appliances (ELECTROLUXONE_API_CALL)")
         resp.raise_for_status()
         return [
             Appliance(appliance_data, self.auth) for appliance_data in await resp.json()
@@ -61,6 +62,7 @@ class ElectroluxHubAPI:
     async def async_get_appliance(self, appliance_id) -> Appliance:
         """Return the appliance."""
         resp = await self.auth.request("get", f"appliances/{appliance_id}/info")
+        _LOGGER.debug(f"Fetched appliance info for {appliance_id} (ELECTROLUXONE_API_CALL)")
         resp.raise_for_status()
         return Appliance(await resp.json(), self.auth)
 
